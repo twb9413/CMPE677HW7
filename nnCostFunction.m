@@ -1,8 +1,4 @@
-function [J grad] = nnCostFunction(nn_params, ...
-                                   input_layer_size, ...
-                                   hidden_layer_size, ...
-                                   num_labels, ...
-                                   X, y, lambda)
+function [J grad] = nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, lambda)
 %NNCOSTFUNCTION Implements the neural network cost function for a two layer
 %neural network which performs classification
 %   [J grad] = NNCOSTFUNCTON(nn_params, hidden_layer_size, num_labels, ...
@@ -48,34 +44,36 @@ ynn=ynn';
 % cost function- first without regularization
 % <<update next line>>:
 % J = 
+J = -(1/n) * sum(sum(ynn .* log(out) + (1-ynn) .* log(1-out)));
 
 % Add regularization to cost function
 % <<update next line>>:
-% reg = 
+reg = (lambda/(2*n)) * (sum(sum(Theta1(:,2:end).^2)) + sum(sum(Theta2(:,2:end).^2)));
 J = J+reg;
 
 
 %backpropogation, calculation of gradients
 for t = 1:n
-%     % Step 1)  Forward propagate
-%     a1 = X1(t,:);	% we did the bias above
-%     z2 = 
-%     a2 = sigmoid(z2);
-%     a2 = [1; a2];	% need to add the bias back to this one
-%     z3 = 
-%     a3 = sigmoid(z3);
-%     z2 = [ 1 ; z2 ];	% still need to worry about the bias effect
-% 
-%     % Step 2)  Compute error
-%     deltaPart3 = 
-%     
-%     % Step 3) Back propagate error through activation function
-%     deltaPart2 = (Theta2' * deltaPart3) .* sigmoidGradient( z2 );
-% 
-%     % Step 4)  Update weights
-%     Theta2_grad = Theta2_grad + deltaPart3 * a2';
-%     Theta1_grad = Theta1_grad + deltaPart2(2:end) * a1;  	
+    % Step 1)  Forward propagate
+    a1 = X1(t,:);	% we did the bias above
+    z2 = Theta1*a1';
+    a2 = sigmoid(z2);
+    a2 = [1; a2];	% need to add the bias back to this one
+    z3 = Theta2*a2;
+    a3 = sigmoid(z3);
+    z2 = [ 1 ; z2 ];	% still need to worry about the bias effect
+
+    % Step 2)  Compute error
+    deltaPart3 = a3 - ynn(:,t);
+
+    % Step 3) Back propagate error through activation function
+    deltaPart2 = (Theta2' * deltaPart3) .* sigmoidGradient( z2 );
+
+    % Step 4)  Update weights
+    Theta2_grad = Theta2_grad + deltaPart3 * a2';
+    Theta1_grad = Theta1_grad + deltaPart2(2:end) * a1;  	
 end;
+
 	
 % Step 5)  Average gradient update
 Theta1_grad = Theta1_grad ./ n;
